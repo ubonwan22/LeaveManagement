@@ -3,7 +3,7 @@
 **โครงสร้าง Projects**
 LeaveManagement/
 ├── manage.py                 # ตัวสั่งงานหลักของ Django (runserver, migrate ฯลฯ)
-├── .env                      # เช่น รหัสผ่านฐานข้อมูล (ไม่ push ขึ้น GitHub)
+├── .env                      # ค่าลับ เช่น รหัสผ่านฐานข้อมูล (ไม่ push ขึ้น GitHub)
 ├── .gitignore                # รายการไฟล์ที่ Git ไม่ต้องติดตาม
 ├── requirements.txt          # รายการ Library ที่ต้องติดตั้ง
 ├── README.md                 # ไฟล์นี้
