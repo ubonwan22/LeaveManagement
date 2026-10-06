@@ -12,11 +12,12 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv() #อ่านไฟล์ .env
 
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+# path ของ folder project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -24,16 +25,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+#กุญแจสำหรับเข้ารหัส session/cookie
 SECRET_KEY = 'django-insecure-vmuzu&+!2z#$hj@f&qpu(%-$xx)0=k&pxcak_3tf85o!@0q20*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+#โหมดพัฒนา แสดงหน้า error ละเอียด (ห้ามเปิดตอนใช้งานจริง)
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
 
 # Application definition
-
+# รายชื่อ App ที่เปิดใช้ต้องมี leave_management ไม่งั้น Django ไม่รู้จัก Model
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -44,6 +47,7 @@ INSTALLED_APPS = [
     'leave_management',
 ]
 
+#ตัวกรองทุก request ต้องผ่าน
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -54,8 +58,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+#กำหนดให้ไฟล์ URL หลัก คือ office_system.urls
 ROOT_URLCONF = 'office_system.urls'
 
+#ตั้งค่าระบบ HTML template
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -74,7 +80,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'office_system.wsgi.application'
 
 
-# Database
+# Database ต่อ MySQL โดยดึง DB_NAME, DB_USER, DB_PASSWORD และอื่นๆ จาก .env
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
 DATABASES = {
@@ -85,12 +91,12 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST', '127.0.0.1'),
         'PORT': os.getenv('DB_PORT', '3306'),
-        'OPTIONS': {'charset': 'utf8mb4'},
+        'OPTIONS': {'charset': 'utf8mb4'}, #เก็บภาษาไทยได้ถูกต้อง
     }
 }
 
 
-# Password validation
+# Password validation ตรวจรหัสผ่านของผู้ใช้งาน
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -112,7 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en-us' 
 
 TIME_ZONE = 'UTC'
 

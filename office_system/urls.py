@@ -14,10 +14,11 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+# path project
 from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('leave_management.urls')),
+    path('admin/', admin.site.urls), #ไปหน้า Django Admin
+    path('', include('leave_management.urls')), #ตรงส่วนที่เหลือให้ urls.py ของ leave_management จัดการ
 ]

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#ตัวสั่งงานหลัก แล้วส่งคำสั่ง runserver, migrate ให้ Django ทำ
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
