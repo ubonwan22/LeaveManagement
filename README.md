@@ -33,7 +33,7 @@ LeaveManagement/
 - Git
 
 2. สร้างและเปิดใช้ Virtual Environment
-# สร้าง
+# สร้าง venv
 python -m venv venv
 
 # เปิดใช้งาน (Windows PowerShell)
