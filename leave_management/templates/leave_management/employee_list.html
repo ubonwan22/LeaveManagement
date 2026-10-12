@@ -1,0 +1,41 @@
+{% extends 'leave_management/base.html' %}
+{% block title %}พนักงาน | ระบบลางานออนไลน์{% endblock %}
+{% block content %}
+<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+  <h1 class="text-2xl font-bold">พนักงาน <span class="text-base font-normal text-slate-400">({{ employees|length }} คน)</span></h1>
+  <form method="get" class="flex gap-2">
+    <input type="search" name="q" value="{{ q }}" placeholder="ค้นหาชื่อหรือตำแหน่ง"
+           class="w-64 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+    <button class="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600">ค้นหา</button>
+  </form>
+</div>
+
+<div class="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+  <table class="w-full text-left text-sm">
+    <thead class="bg-slate-50 text-slate-500">
+      <tr>
+        <th class="px-4 py-3 font-medium">#</th>
+        <th class="px-4 py-3 font-medium">ชื่อ</th>
+        <th class="px-4 py-3 font-medium">ตำแหน่ง</th>
+        <th class="px-4 py-3 font-medium">วันลาคงเหลือ</th>
+        <th class="px-4 py-3 font-medium">หัวหน้างาน</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for e in employees %}
+      <tr>
+        <td class="px-4 py-3 text-slate-400">{{ e.id }}</td>
+        <td class="px-4 py-3 font-medium">{{ e.name }}</td>
+        <td class="px-4 py-3">{{ e.position|default:"—" }}</td>
+        <td class="px-4 py-3">
+          <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold {% if e.leave_balance <= 2 %}bg-rose-100 text-rose-700{% else %}bg-indigo-100 text-indigo-700{% endif %}">{{ e.leave_balance }} วัน</span>
+        </td>
+        <td class="px-4 py-3">{{ e.manager.name|default:"—" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" class="px-4 py-10 text-center text-slate-400">ไม่พบพนักงาน</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
