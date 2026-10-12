@@ -1,0 +1,24 @@
+{% extends 'leave_management/base.html' %}
+{% block title %}ยื่นใบลา | ระบบลางานออนไลน์{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-xl">
+  <h1 class="mb-4 text-2xl font-bold">ยื่นใบลา</h1>
+  <form method="post" class="space-y-4 rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="rounded-lg bg-rose-50 px-4 py-3 text-sm text-rose-700">{{ form.non_field_errors }}</div>
+    {% endif %}
+    {% for field in form %}
+    <div>
+      <label for="{{ field.id_for_label }}" class="mb-1 block text-sm font-medium">{{ field.label }}</label>
+      {{ field }}
+      {% for e in field.errors %}<p class="mt-1 text-sm text-rose-600">{{ e }}</p>{% endfor %}
+    </div>
+    {% endfor %}
+    <div class="flex gap-3 pt-2">
+      <button type="submit" class="rounded-lg bg-indigo-600 px-5 py-2 font-medium text-white hover:bg-indigo-700">ส่งใบลา</button>
+      <a href="{% url 'request_list' %}" class="rounded-lg px-5 py-2 font-medium text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100">ยกเลิก</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
