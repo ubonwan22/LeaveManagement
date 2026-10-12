@@ -23,66 +23,83 @@
 </div>
 
 <script>
-// แปลงช่องวันที่ให้เลือกเป็น วัน / เดือน / ปี พ.ศ. (ภาษาไทย) ค่าที่ส่งไปเซิร์ฟเวอร์ยังเป็นรูปแบบ YYYY-MM-DD เหมือนเดิม
+// DatePicker เลือกวันเริ่ม-วันสิ้นสุด แสดงเป็นภาษาไทย (ปี พ.ศ.) ค่าที่ส่งไปเซิร์ฟเวอร์ยังเป็น YYYY-MM-DD
 (function () {
-  const MONTHS = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-                  'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
-  const thisYear = new Date().getFullYear();
+  // ถ้าโหลด flatpickr ไม่ได้ (เช่น ออฟไลน์) จะใช้ช่องเลือกวันที่มาตรฐานของเบราว์เซอร์แทน
+  if (!window.flatpickr) return;
 
-  document.querySelectorAll('input[data-thai-date]').forEach(function (input) {
-    const wrap = document.createElement('div');
-    wrap.className = 'grid grid-cols-3 gap-2';
-    const day = document.createElement('select');
-    const month = document.createElement('select');
-    const year = document.createElement('select');
-    [day, month, year].forEach(function (s) { s.className = input.className; });
+  const DAYS = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
+  const MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  const holidays = JSON.parse(document.getElementById('holidays-data').textContent);
+  const pad = (n) => String(n).padStart(2, '0');
+  const iso = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  const thai = (d) => DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + (d.getFullYear() + 543);
 
-    month.add(new Option('เดือน', ''));
-    MONTHS.forEach(function (m, i) { month.add(new Option(m, i + 1)); });
-    year.add(new Option('ปี พ.ศ.', ''));
-    for (let y = thisYear - 1; y <= thisYear + 2; y++) year.add(new Option(y + 543, y));
-
-    function fillDays() {
-      const m = Number(month.value);
-      const y = Number(year.value) || thisYear;
-      const max = m ? new Date(y, m, 0).getDate() : 31;  // จำนวนวันในเดือนนั้น
-      const keep = day.value;
-      day.length = 0;
-      day.add(new Option('วันที่', ''));
-      for (let d = 1; d <= max; d++) day.add(new Option(d, d));
-      if (keep && Number(keep) <= max) day.value = keep;
+  // หัวปฏิทินแสดงปี พ.ศ. (ซ่อนช่องปี ค.ศ. ของ flatpickr แล้วใส่ตัวเลข พ.ศ. แทน เลื่อนปีได้ด้วยลูกศรเดือน)
+  function showThaiYear(inst) {
+    const wrap = inst.currentYearElement.parentNode;
+    let label = wrap.parentNode.querySelector('.thai-year');
+    if (!label) {
+      wrap.style.display = 'none';
+      label = document.createElement('span');
+      label.className = 'thai-year';
+      wrap.parentNode.appendChild(label);
     }
+    label.textContent = inst.currentYear + 543;
+  }
 
-    function sync() {
-      if (day.value && month.value && year.value) {
-        input.value = year.value + '-' + String(month.value).padStart(2, '0') + '-' + String(day.value).padStart(2, '0');
-      } else {
-        input.value = '';
+  const base = {
+    locale: (flatpickr.l10ns && flatpickr.l10ns.th) || 'default',   // ภาษาไทย (ถ้าโหลดไฟล์ภาษาไม่ได้ใช้ค่าเริ่มต้น)
+    dateFormat: 'Y-m-d',          // ค่าจริงที่ส่งเซิร์ฟเวอร์
+    altInput: true,               // ช่องที่ผู้ใช้เห็น
+    altFormat: 'j',               // ไม่ใช้จริง: formatDate ด้านล่างแปลงเป็นไทยให้เอง
+    allowInput: false,
+    disableMobile: true,
+    formatDate: (d, f) => (f === 'Y-m-d' ? iso(d) : thai(d)),
+    onReady: (_s, _d, inst) => { inst.altInput.placeholder = 'เลือกวันที่'; inst.altInput.classList.add('cursor-pointer'); showThaiYear(inst); },
+    onOpen: (_s, _d, inst) => showThaiYear(inst),
+    onMonthChange: (_s, _d, inst) => showThaiYear(inst),
+    onYearChange: (_s, _d, inst) => showThaiYear(inst),
+    onDayCreate: (_s, _d, _inst, el) => {
+      const day = el.dateObj;
+      if (day.getDay() === 0 || day.getDay() === 6) el.classList.add('is-weekend');
+      const name = holidays[iso(day)];
+      if (name) { el.classList.add('is-holiday'); el.title = name; }
+    },
+  };
+
+  const startEl = document.getElementById('id_start_date');
+  const endEl = document.getElementById('id_end_date');
+  const out = document.getElementById('total-days');
+
+  // แสดงจำนวนวันลา (ไม่นับเสาร์-อาทิตย์/วันหยุด) ให้ดูล่วงหน้า ส่วนค่าจริงเซิร์ฟเวอร์คำนวณอีกครั้งตอนกดส่ง
+  function updateTotal() {
+    const s = start.selectedDates[0], e = end.selectedDates[0];
+    if (!s || !e || e < s) { out.textContent = ''; return; }
+    let n = 0;
+    for (const d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
+      if (d.getDay() !== 0 && d.getDay() !== 6 && !holidays[iso(d)]) n++;
+    }
+    out.textContent = 'รวม ' + n + ' วันทำงาน (ไม่นับเสาร์-อาทิตย์และวันหยุดนักขัตฤกษ์)';
+  }
+
+  const end = flatpickr(endEl, Object.assign({}, base, {
+    minDate: startEl.value || null,
+    onChange: updateTotal,
+  }));
+  const start = flatpickr(startEl, Object.assign({}, base, {
+    onChange: (selected) => {
+      if (selected[0]) {
+        end.set('minDate', selected[0]);                       // วันสิ้นสุดเลือกก่อนวันเริ่มไม่ได้
+        const cur = end.selectedDates[0];
+        if (!cur || cur < selected[0]) end.setDate(selected[0], true);   // ตั้งเป็นวันเดียวกันให้ก่อน
       }
-    }
-
-    // ถ้ามีค่าเดิม (เช่น ฟอร์มแสดงซ้ำหลังกรอกผิด) ให้เลือกค่านั้นไว้
-    if (input.value) {
-      const parts = input.value.split('-').map(Number);
-      if (!Array.from(year.options).some(function (o) { return Number(o.value) === parts[0]; })) {
-        year.add(new Option(parts[0] + 543, parts[0]));
-      }
-      year.value = parts[0];
-      month.value = parts[1];
-      fillDays();
-      day.value = parts[2];
-    } else {
-      fillDays();
-    }
-
-    month.addEventListener('change', function () { fillDays(); sync(); });
-    year.addEventListener('change', function () { fillDays(); sync(); });
-    day.addEventListener('change', sync);
-
-    input.type = 'hidden';
-    input.parentNode.insertBefore(wrap, input);
-    wrap.append(day, month, year);
-  });
+      updateTotal();
+    },
+  }));
+  // ถ้าค่าเดิมของวันสิ้นสุดไม่ถูกต้อง (เช่น ก่อนวันเริ่ม) ให้เคลียร์ช่อง จะได้เลือกใหม่
+  if (endEl.value && !end.selectedDates[0]) end.clear(false);
+  updateTotal();
 })();
 </script>
 {% endblock %}

@@ -79,7 +79,8 @@ def request_create(request):
             request,
             f'ยื่นใบลาเรียบร้อย รวม {days} วัน (ไม่นับเสาร์-อาทิตย์และวันหยุดนักขัตฤกษ์) รอการอนุมัติ')
         return redirect('request_list')
-    return render(request, 'leave_management/request_form.html', {'form': form})
+    holidays = {d.isoformat(): name for d, name in Holiday.objects.values_list('date', 'name')}
+    return render(request, 'leave_management/request_form.html', {'form': form, 'holidays': holidays})
 
 
 @require_POST

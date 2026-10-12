@@ -14,6 +14,7 @@
   <script>
     tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Noto Sans Thai"', 'sans-serif'] } } } }
   </script>
+  {% block head %}{% endblock %}
 </head>
 <body class="min-h-screen bg-slate-50 font-sans text-slate-800">
   {% with page=request.resolver_match.url_name %}
