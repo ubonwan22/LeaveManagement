@@ -21,4 +21,68 @@
     </div>
   </form>
 </div>
+
+<script>
+// แปลงช่องวันที่ให้เลือกเป็น วัน / เดือน / ปี พ.ศ. (ภาษาไทย) ค่าที่ส่งไปเซิร์ฟเวอร์ยังเป็นรูปแบบ YYYY-MM-DD เหมือนเดิม
+(function () {
+  const MONTHS = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                  'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+  const thisYear = new Date().getFullYear();
+
+  document.querySelectorAll('input[data-thai-date]').forEach(function (input) {
+    const wrap = document.createElement('div');
+    wrap.className = 'grid grid-cols-3 gap-2';
+    const day = document.createElement('select');
+    const month = document.createElement('select');
+    const year = document.createElement('select');
+    [day, month, year].forEach(function (s) { s.className = input.className; });
+
+    month.add(new Option('เดือน', ''));
+    MONTHS.forEach(function (m, i) { month.add(new Option(m, i + 1)); });
+    year.add(new Option('ปี พ.ศ.', ''));
+    for (let y = thisYear - 1; y <= thisYear + 2; y++) year.add(new Option(y + 543, y));
+
+    function fillDays() {
+      const m = Number(month.value);
+      const y = Number(year.value) || thisYear;
+      const max = m ? new Date(y, m, 0).getDate() : 31;  // จำนวนวันในเดือนนั้น
+      const keep = day.value;
+      day.length = 0;
+      day.add(new Option('วันที่', ''));
+      for (let d = 1; d <= max; d++) day.add(new Option(d, d));
+      if (keep && Number(keep) <= max) day.value = keep;
+    }
+
+    function sync() {
+      if (day.value && month.value && year.value) {
+        input.value = year.value + '-' + String(month.value).padStart(2, '0') + '-' + String(day.value).padStart(2, '0');
+      } else {
+        input.value = '';
+      }
+    }
+
+    // ถ้ามีค่าเดิม (เช่น ฟอร์มแสดงซ้ำหลังกรอกผิด) ให้เลือกค่านั้นไว้
+    if (input.value) {
+      const parts = input.value.split('-').map(Number);
+      if (!Array.from(year.options).some(function (o) { return Number(o.value) === parts[0]; })) {
+        year.add(new Option(parts[0] + 543, parts[0]));
+      }
+      year.value = parts[0];
+      month.value = parts[1];
+      fillDays();
+      day.value = parts[2];
+    } else {
+      fillDays();
+    }
+
+    month.addEventListener('change', function () { fillDays(); sync(); });
+    year.addEventListener('change', function () { fillDays(); sync(); });
+    day.addEventListener('change', sync);
+
+    input.type = 'hidden';
+    input.parentNode.insertBefore(wrap, input);
+    wrap.append(day, month, year);
+  });
+})();
+</script>
 {% endblock %}

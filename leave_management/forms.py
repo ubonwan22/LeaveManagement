@@ -23,8 +23,8 @@ class LeaveRequestForm(forms.ModelForm):
         widgets = {
             'employee': forms.Select(attrs={'class': INPUT}),
             'leave_type': forms.Select(attrs={'class': INPUT}),
-            'start_date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': INPUT}),
-            'end_date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': INPUT}),
+            'start_date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': INPUT, 'data-thai-date': ''}),
+            'end_date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': INPUT, 'data-thai-date': ''}),
         }
 
     def __init__(self, *args, **kwargs):

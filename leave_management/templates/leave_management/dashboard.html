@@ -1,4 +1,5 @@
 {% extends 'leave_management/base.html' %}
+{% load thai_date %}
 {% block title %}ภาพรวมระบบลางานออนไลน์{% endblock %}
 {% block content %}
 <h1 class="mb-4 text-2xl font-bold">ภาพรวม</h1>
@@ -33,7 +34,7 @@
       <li class="flex items-center justify-between gap-3 py-2.5 text-sm">
         <div>
           <p class="font-medium">{{ r.employee.name }}</p>
-          <p class="text-slate-500">{{ r.leave_type.name }} · {{ r.start_date|date:"j M" }} – {{ r.end_date|date:"j M Y" }} ({{ r.days }} วัน)</p>
+          <p class="text-slate-500">{{ r.leave_type.name }} · {{ r.start_date|thai_date:"short" }} – {{ r.end_date|thai_date:"short" }} ({{ r.days }} วัน)</p>
         </div>
         {% include 'leave_management/_badge.html' with status=r.status label=r.get_status_display %}
       </li>
@@ -50,7 +51,7 @@
     </div>
     <ul class="divide-y divide-slate-100 text-sm">
       {% for h in upcoming %}
-      <li class="py-2.5"><p class="font-medium">{{ h.name }}</p><p class="text-slate-500">{{ h.date|date:"l j F Y" }}</p></li>
+      <li class="py-2.5"><p class="font-medium">{{ h.name }}</p><p class="text-slate-500">{{ h.date|thai_date:"short" }}</p></li>
       {% empty %}
       <li class="py-6 text-center text-slate-400">ไม่มีวันหยุดที่กำลังจะถึง</li>
       {% endfor %}

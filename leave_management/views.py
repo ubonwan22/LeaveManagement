@@ -113,6 +113,6 @@ def holiday_list(request):
     year = date.today().year
     return render(request, 'leave_management/holiday_list.html', {
         'holidays': Holiday.objects.filter(date__year=year).order_by('date'),
-        'year': year,
+        'year_be': year + 543,
         'today': date.today(),
     })

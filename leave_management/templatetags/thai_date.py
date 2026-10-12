@@ -1,0 +1,21 @@
+from django import template
+
+register = template.Library()
+
+THAI_DAYS = ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์', 'อาทิตย์']
+THAI_MONTHS = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+               'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม']
+THAI_MONTHS_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+                    'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']
+
+@register.filter
+def thai_date(value, style='full'):
+    if not value:
+        return ''
+    year = value.year + 543  # Convert to Thai Buddhist calendar year
+    if style == 'short':
+        return f"{value.day} {THAI_MONTHS_SHORT[value.month - 1]} {year}"
+    text = f"{value.day} {THAI_MONTHS[value.month - 1]} {year}"
+    if style == 'long':
+        return text
+    return f"วัน{THAI_DAYS[value.weekday()]}ที่ {text}"

@@ -1,4 +1,5 @@
 {% extends 'leave_management/base.html' %}
+{% load thai_date %}
 {% block title %}ใบลา | ระบบลางานออนไลน์{% endblock %}
 {% block content %}
 <div class="mb-4 flex items-center justify-between">
@@ -32,7 +33,7 @@
       <tr>
         <td class="px-4 py-3 font-medium">{{ r.employee.name }}</td>
         <td class="px-4 py-3">{{ r.leave_type.name }}</td>
-        <td class="whitespace-nowrap px-4 py-3">{{ r.start_date|date:"j M Y" }} – {{ r.end_date|date:"j M Y" }}</td>
+        <td class="whitespace-nowrap px-4 py-3">{{ r.start_date|thai_date:"short" }} – {{ r.end_date|thai_date:"short" }}</td>
         <td class="px-4 py-3">{{ r.days }}</td>
         <td class="px-4 py-3">{% include 'leave_management/_badge.html' with status=r.status label=r.get_status_display %}</td>
         <td class="px-4 py-3">

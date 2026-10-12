@@ -1,13 +1,14 @@
 {% extends 'leave_management/base.html' %}
+{% load thai_date %}
 {% block title %}วันหยุด | ระบบลางานออนไลน์{% endblock %}
 {% block content %}
-<h1 class="mb-4 text-2xl font-bold">วันหยุดนักขัตฤกษ์ ปี {{ year }}</h1>
+<h1 class="mb-4 text-2xl font-bold">วันหยุดนักขัตฤกษ์ ปี พ.ศ. {{ year_be }}</h1>
 <div class="rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
   <ul class="divide-y divide-slate-100 text-sm">
     {% for h in holidays %}
     <li class="flex items-center justify-between gap-3 px-4 py-3 {% if h.date < today %}text-slate-400{% endif %}">
       <span class="font-medium">{{ h.name }}</span>
-      <span>{{ h.date|date:"l j F Y" }}</span>
+      <span>{{ h.date|thai_date }}</span>
     </li>
     {% empty %}
     <li class="px-4 py-10 text-center text-slate-400">ยังไม่มีข้อมูลวันหยุด (รัน <code>python manage.py seed_data</code>)</li>
