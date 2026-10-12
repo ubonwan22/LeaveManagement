@@ -7,8 +7,9 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from .forms import LeaveRequestForm, leave_days
+from .forms import LeaveRequestForm
 from .models import Employee, Holiday, LeaveRequest
+from .utils import get_holiday_dates, leave_days
 
 
 def hello(request):
@@ -19,10 +20,14 @@ def hello(request):
 
 
 def _with_days(requests_):
-    """แนบจำนวนวันลาให้แต่ละใบลา เพื่อใช้แสดงผลใน template"""
+    """แนบจำนวนวันลา (ไม่นับเสาร์-อาทิตย์/วันหยุด) ให้แต่ละใบลา เพื่อใช้แสดงผลใน template"""
     items = list(requests_)
-    for r in items:
-        r.days = leave_days(r.start_date, r.end_date)
+    if items:
+        # ดึงวันหยุดครั้งเดียวสำหรับทุกใบลา (ไม่ query ซ้ำทีละใบ)
+        holidays = get_holiday_dates(
+            min(r.start_date for r in items), max(r.end_date for r in items))
+        for r in items:
+            r.days = leave_days(r.start_date, r.end_date, holidays)
     return items
 
 
@@ -66,11 +71,14 @@ def request_list(request):
 
 
 def request_create(request):
-    form = LeaveRequestForm(request.POST or None) # GET = ฟอร์มว่าง, POST = ฟอร์มที่กรอกข้อมูลแล้ว
+    form = LeaveRequestForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
-        form.save()
-        messages.success(request, 'ยื่นใบลาเรียบร้อย รอการอนุมัติ')
-        return redirect('request_list') # ไปหน้ารายการใบลา
+        leave = form.save()
+        days = leave_days(leave.start_date, leave.end_date)  # Total Days
+        messages.success(
+            request,
+            f'ยื่นใบลาเรียบร้อย รวม {days} วัน (ไม่นับเสาร์-อาทิตย์และวันหยุดนักขัตฤกษ์) รอการอนุมัติ')
+        return redirect('request_list')
     return render(request, 'leave_management/request_form.html', {'form': form})
 
 
