@@ -1,0 +1,4 @@
+<span class="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold
+  {% if status == 'APPROVED' %}bg-emerald-100 text-emerald-700
+  {% elif status == 'REJECTED' %}bg-rose-100 text-rose-700
+  {% else %}bg-amber-100 text-amber-700{% endif %}">{{ label }}</span>
