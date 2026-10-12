@@ -1,14 +1,11 @@
 from django import forms
 from .models import Employee, LeaveRequest
+from .utils import leave_days
 
 INPUT = (
     "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 "
     "focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
 )
-
-def leave_days(start, end):
-    """จำนวนวันลา (นับรวมวันเริ่มและวันสิ้นสุด)"""
-    return (end - start).days + 1
 
 class LeaveRequestForm(forms.ModelForm):
     class Meta:
@@ -34,20 +31,22 @@ class LeaveRequestForm(forms.ModelForm):
         self.fields['employee'].empty_label = "--เลือกพนักงาน--"
         self.fields['leave_type'].empty_label = "--เลือกประเภทการลา--"
 
-    def clean(self): 
-        data = super().clean() #ให้ Django เช็คว่ากรอกข้อมูลครบหรือไม่ และเช็คชนิดข้อมูลถูกต้องหรือไม่
-        start, end, emp = data.get('start_date'), data.get('end_date'), data.get('employee') 
+    def clean(self):
+        data = super().clean()
+        start, end, emp = data.get('start_date'), data.get('end_date'), data.get('employee')
         if start and end:
             if end < start:
                 self.add_error('end_date', 'วันที่สิ้นสุดต้องไม่ก่อนวันที่เริ่มลา')
             elif emp:
                 days = leave_days(start, end)
-                if days > emp.leave_balance: #ลาเกินวันลาคงเหลือ
+                if days == 0:
+                    self.add_error(
+                        'end_date',
+                        'ช่วงวันที่เลือกเป็นวันเสาร์-อาทิตย์หรือวันหยุดนักขัตฤกษ์ทั้งหมด ไม่ต้องยื่นใบลา',
+                    )
+                elif days > emp.leave_balance:
                     self.add_error(
                         'end_date',
                         f'วันลาคงเหลือของ {emp.name} มี {emp.leave_balance} วัน ไม่พอสำหรับลา {days} วัน',
                     )
         return data
-
-
-
