@@ -7,12 +7,13 @@ from .models import Employee, Holiday, LeaveRequest, LeaveType
 class LeaveTypeAdmin(admin.ModelAdmin):
     list_display = ('name','max_days')
 
+#ลงวทะเบียน model ให้โผล่ใน /admin/
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'position', 'leave_balance', 'manager')
-    list_filter = ('position',)
-    search_fields = ('name', 'position')
-    list_per_page = 50
+    list_display = ('id', 'name', 'position', 'leave_balance', 'manager') # column ในตาราง
+    list_filter = ('position',) #ตัวกรองด้านขวา (ต้องมี , ต่อท้าย เพราะมีแค่ตัวเดียว)
+    search_fields = ('name', 'position') #ช่องค้นหา
+    list_per_page = 50 
 
 @admin.register(LeaveRequest)
 class LeaveRequestAdmin(admin.ModelAdmin):

@@ -34,15 +34,15 @@ class LeaveRequestForm(forms.ModelForm):
         self.fields['employee'].empty_label = "--เลือกพนักงาน--"
         self.fields['leave_type'].empty_label = "--เลือกประเภทการลา--"
 
-    def clean(self):
-        data = super().clean()
-        start, end, emp = data.get('start_date'), data.get('end_date'), data.get('employee')
+    def clean(self): 
+        data = super().clean() #ให้ Django เช็คว่ากรอกข้อมูลครบหรือไม่ และเช็คชนิดข้อมูลถูกต้องหรือไม่
+        start, end, emp = data.get('start_date'), data.get('end_date'), data.get('employee') 
         if start and end:
             if end < start:
                 self.add_error('end_date', 'วันที่สิ้นสุดต้องไม่ก่อนวันที่เริ่มลา')
             elif emp:
                 days = leave_days(start, end)
-                if days > emp.leave_balance:
+                if days > emp.leave_balance: #ลาเกินวันลาคงเหลือ
                     self.add_error(
                         'end_date',
                         f'วันลาคงเหลือของ {emp.name} มี {emp.leave_balance} วัน ไม่พอสำหรับลา {days} วัน',

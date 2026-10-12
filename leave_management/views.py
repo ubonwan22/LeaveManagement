@@ -66,11 +66,11 @@ def request_list(request):
 
 
 def request_create(request):
-    form = LeaveRequestForm(request.POST or None)
+    form = LeaveRequestForm(request.POST or None) # GET = ฟอร์มว่าง, POST = ฟอร์มที่กรอกข้อมูลแล้ว
     if request.method == 'POST' and form.is_valid():
         form.save()
         messages.success(request, 'ยื่นใบลาเรียบร้อย รอการอนุมัติ')
-        return redirect('request_list')
+        return redirect('request_list') # ไปหน้ารายการใบลา
     return render(request, 'leave_management/request_form.html', {'form': form})
 
 
