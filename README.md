@@ -105,12 +105,6 @@ exit()
 powershell
 python manage.py runserver
 
-เปิดเบราว์เซอร์ไปที่ <http://127.0.0.1:8000/> จะเห็นข้อความ
-
-Hello, สมชาย ใจดี
-
-โดยชื่อดึงมาจากตาราง leave_management_employee ใน MySQL
-
 ## คำสั่งที่ใช้บ่อย
 
 | คำสั่ง | ทำอะไร |
