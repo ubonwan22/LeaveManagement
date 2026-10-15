@@ -12,19 +12,28 @@ LeaveManagement/
 ├── office_system/            # โฟลเดอร์ตั้งค่าของ Project
 │   ├── __init__.py           # ตั้งค่า PyMySQL ให้ Django ใช้แทน mysqlclient
 │   ├── settings.py           # ตั้งค่า DATABASES, INSTALLED_APPS, อ่านค่าจาก .env
-│   ├── urls.py               # ตาราง URL หลัก (include ไปยัง leave_management)
+│   ├── urls.py               # /admin/ และส่งต่อไปยัง leav_management
 │   ├── asgi.py
 │   └── wsgi.py
 │
 └── leave_management/         # App หลักของระบบลางาน
     ├── __init__.py
-    ├── admin.py
+    ├── admin.py              # ลงทะเบียน Model ในหน้า Admin
     ├── apps.py
     ├── models.py             # โครงสร้างตาราง (Employee)
     ├── views.py              # ตรรกะหน้าเว็บ (ดึงชื่อพนักงานจาก MySQL)
     ├── urls.py               # URL ของ App นี้
-    ├── tests.py
+    ├── tests.py              #เทสการคำนวณวันลา
+    ├── utils.py              #ฟังก์ชันคำนวณวันลา (ตัดเสาร์-อาทิตย์/วันหยุด)
     └── migrations/           # ไฟล์ migration ที่ Django สร้างให้
+    └── templatetags/         
+        └── base.html         #โครงหลักเมนู font 
+        └── _badge.html       #สถานะการลา
+        └── dashboard.html    #หน้าภาพรวม
+        └── request_list.html         #รายการใบลา + ปุ่มอนุมัติ
+        └── request_form.html         #form ยื่นใบลา
+        └── employee_list.html         #รายชื่อพนักงาน
+        └── holiday_list.html         #วันหยุด 
 
 **วิธีติดตั้งและรัน**
 1. เตรียมสิ่งที่ต้องมี
@@ -95,12 +104,6 @@ exit()
 
 powershell
 python manage.py runserver
-
-เปิดเบราว์เซอร์ไปที่ <http://127.0.0.1:8000/> จะเห็นข้อความ
-
-Hello, สมชาย ใจดี
-
-โดยชื่อดึงมาจากตาราง leave_management_employee ใน MySQL
 
 ## คำสั่งที่ใช้บ่อย
 
