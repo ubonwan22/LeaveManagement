@@ -1,0 +1,23 @@
+{% comment %}ตัวแบ่งหน้า ใช้ร่วมกัน  ต้องส่ง: page_obj, paginator, page_numbers, extra (query เพิ่มเติม เช่น "&status=PENDING"){% endcomment %}
+{% if paginator.num_pages > 1 %}
+<nav class="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm">
+  <p class="text-slate-500">แสดง {{ page_obj.start_index }}–{{ page_obj.end_index }} จาก {{ paginator.count }} รายการ</p>
+  <div class="flex flex-wrap items-center gap-1">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{{ extra }}" class="rounded-lg bg-white px-3 py-1.5 text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100">‹ ก่อนหน้า</a>
+    {% endif %}
+    {% for n in page_numbers %}
+      {% if n == page_obj.number %}
+        <span class="rounded-lg bg-sky-600 px-3 py-1.5 font-medium text-white">{{ n }}</span>
+      {% elif n == '…' %}
+        <span class="px-2 text-slate-400">…</span>
+      {% else %}
+        <a href="?page={{ n }}{{ extra }}" class="rounded-lg bg-white px-3 py-1.5 text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100">{{ n }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{{ extra }}" class="rounded-lg bg-white px-3 py-1.5 text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100">ถัดไป ›</a>
+    {% endif %}
+  </div>
+</nav>
+{% endif %}
