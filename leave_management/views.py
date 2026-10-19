@@ -1,6 +1,8 @@
 from datetime import date
+from urllib.parse import quote_plus
 
 from django.contrib import messages
+from django.contrib.auth import views as auth_views
 from django.db import transaction
 from django.db.models import Count, Q
 from django.core.exceptions import PermissionDenied
@@ -26,6 +28,16 @@ def hello(request):
     return HttpResponse("Hello, ไม่พบข้อมูลพนักงาน")
 
 
+def _paginate(request, qs, per_page=10):
+    """แบ่งหน้า (หน้าละ 10 รายการ) คืน (page_obj, paginator, page_numbers)"""
+    paginator = Paginator(qs, per_page)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    page_numbers = [
+        n if n != paginator.ELLIPSIS else '…'
+        for n in paginator.get_elided_page_range(page_obj.number, on_each_side=2, on_ends=1)]
+    return page_obj, paginator, page_numbers
+
+
 def _with_days(requests_):
     """แนบจำนวนวันลา (ไม่นับเสาร์-อาทิตย์/วันหยุด) ให้แต่ละใบลา เพื่อใช้แสดงผลใน template"""
     items = list(requests_)
@@ -36,6 +48,27 @@ def _with_days(requests_):
         for r in items:
             r.days = leave_days(r.start_date, r.end_date, holidays)
     return items
+
+
+class AppLoginView(auth_views.LoginView):
+    """ล็อกอินสำเร็จแล้วแสดงป๊อปอัพต้อนรับ"""
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        user = form.get_user()
+        emp = get_employee(user)
+        name = emp.name if emp else user.get_full_name() or user.username
+        messages.success(self.request, f'เข้าสู่ระบบสำเร็จ ยินดีต้อนรับ {name}')
+        return response
+
+
+class AppLogoutView(auth_views.LogoutView):
+    """ล็อกเอาต์แล้วแสดงป๊อปอัพที่หน้าล็อกอิน"""
+
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        messages.success(request, 'ออกจากระบบเรียบร้อยแล้ว')
+        return response
 
 
 def dashboard(request):
@@ -55,7 +88,11 @@ def dashboard(request):
         pending = _with_days(
             decidable_requests(request.user).filter(status=S.PENDING)
             .select_related('employee', 'leave_type').order_by('id'))
+    my_employee = None if request.user.is_superuser else get_employee(request.user)
+    approver = is_approver(request.user)
     return render(request, 'leave_management/dashboard.html', {
+        'my_employee': my_employee,  # วันลาคงเหลือของตัวเอง (admin ไม่มี)
+        'cols': 3 + (1 if approver else 0) + (1 if my_employee else 0),  # จำนวนการ์ด ใช้จัดคอลัมน์
         'employee_count': visible_employees(request.user).count(),
         'counts': counts,
         'recent': _with_days(recent),
@@ -81,13 +118,16 @@ def request_list(request):
     tabs = [('', 'ทั้งหมด', totals['all'])] + [
         (value, label, totals[value]) for value, label in S.choices
     ]
-    items = _with_days(qs)
+    page_obj, paginator, page_numbers = _paginate(request, qs)
+    items = _with_days(page_obj.object_list)
     for r in items:  # ปุ่มอนุมัติ/ไม่อนุมัติโชว์เฉพาะคนที่มีสิทธิ์ตัดสินใบลานั้น
         r.can_decide = r.status == S.PENDING and can_decide(request.user, r)
     return render(request, 'leave_management/request_list.html', {
         'requests': items,
         'tabs': tabs,
         'current': current,
+        'page_obj': page_obj, 'paginator': paginator, 'page_numbers': page_numbers,
+        'extra': f'&status={current}' if current in S.values else '',  # คงตัวกรองสถานะตอนเปลี่ยนหน้า
     })
 
 
@@ -146,14 +186,12 @@ def employee_list(request):
     qs = visible_employees(request.user).select_related('manager').order_by('id')
     if q:
         qs = qs.filter(Q(name__icontains=q) | Q(position__icontains=q))
-    paginator = Paginator(qs, 10)  # หน้าละ 10 คน
-    page_obj = paginator.get_page(request.GET.get('page'))
-    page_numbers = [
-        n if n != paginator.ELLIPSIS else '…'
-        for n in paginator.get_elided_page_range(page_obj.number, on_each_side=2, on_ends=1)]
+    page_obj, paginator, page_numbers = _paginate(request, qs)
     return render(request, 'leave_management/employee_list.html', {
         'employees': page_obj, 'page_obj': page_obj, 'paginator': paginator,
-        'page_numbers': page_numbers, 'q': q})
+        'page_numbers': page_numbers, 'q': q,
+        'extra': f'&q={quote_plus(q)}' if q else '',  # คงคำค้นหาตอนเปลี่ยนหน้า
+    })
 
 
 def employee_detail(request, pk):
