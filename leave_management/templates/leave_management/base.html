@@ -35,7 +35,7 @@
       <form method="post" action="{% url 'logout' %}" class="flex items-center gap-3 text-sm">
         {% csrf_token %}
         <span class="text-slate-500">👤 {{ user.employee.name|default:user.username }}</span>
-        <button type="submit" class="rounded-lg border border-slate-200 px-3 py-2 font-medium text-slate-600 hover:bg-slate-100">ออกจากระบบ</button>
+        <button type="submit" class="rounded-lg px-3 py-2 font-medium text-slate-600 bg-red-500 text-white hover:bg-red-600">ออกจากระบบ</button>
       </form>
       {% endif %}
     </div>
