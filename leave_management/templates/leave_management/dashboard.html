@@ -29,11 +29,17 @@
 </section>
 {% endif %}
 
-<div class="grid grid-cols-2 gap-4 {% if is_approver %}lg:grid-cols-4{% else %}lg:grid-cols-3{% endif %}">
-  {% if is_approver %}{# พนักงานทั่วไปไม่ต้องเห็นจำนวนพนักงาน #}
-  <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+<div class="grid grid-cols-2 gap-4 {% if cols == 5 %}lg:grid-cols-5{% elif cols == 4 %}lg:grid-cols-4{% else %}lg:grid-cols-3{% endif %}">
+  {% if is_approver %}{# พนักงานทั่วไปไม่ต้องเห็นจำนวนพนักงาน  กดเพื่อไปหน้าพนักงาน #}
+  <a href="{% url 'employee_list' %}" class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 hover:ring-indigo-300">
     <p class="text-sm text-slate-500">{% if user.is_superuser %}พนักงานทั้งหมด{% else %}พนักงานในทีม{% endif %}</p>
     <p class="mt-1 text-3xl font-bold text-indigo-600">{{ employee_count }}</p>
+  </a>
+  {% endif %}
+  {% if my_employee %}{# วันลาคงเหลือของตัวเอง (พนักงานและหัวหน้า) #}
+  <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+    <p class="text-sm text-slate-500">วันลาคงเหลือของฉัน</p>
+    <p class="mt-1 text-3xl font-bold {% if my_employee.leave_balance <= 2 %}text-rose-600{% else %}text-sky-600{% endif %}">{{ my_employee.leave_balance }} <span class="text-base font-normal">วัน</span></p>
   </div>
   {% endif %}
   <a href="{% url 'request_list' %}?status=PENDING" class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 hover:ring-amber-300">
