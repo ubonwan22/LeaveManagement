@@ -13,6 +13,9 @@ if [ "${SEED_DATA:-1}" = "1" ]; then
   fi
 fi
 
+# สร้างบัญชีล็อกอิน (emp<id>) ให้พนักงานที่ยังไม่มีบัญชี (รันซ้ำได้ ไม่ทับของเดิม)
+python manage.py create_employee_users
+
 # สร้าง superuser ครั้งแรกจากค่าใน .env (ถ้ามีอยู่แล้วจะข้าม)
 if [ -n "$DJANGO_SUPERUSER_USERNAME" ] && [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; then
   python manage.py createsuperuser --noinput \
