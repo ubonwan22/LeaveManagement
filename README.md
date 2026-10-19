@@ -132,3 +132,16 @@ __pycache__/
 *.pyc
 db.sqlite3
 .env
+
+
+## รันด้วย Docker (server จำลอง)
+
+```bash
+cp .env.example .env        # แล้วแก้รหัสผ่านใน .env
+docker compose up --build
+```
+
+- เปิดเว็บที่ http://localhost:8000/ (จะขึ้นหน้าล็อกอิน) เข้าสู่ระบบด้วย `DJANGO_SUPERUSER_USERNAME` / `DJANGO_SUPERUSER_PASSWORD` ใน `.env`
+- ครั้งแรกระบบจะ `migrate` และใส่ข้อมูลพนักงานจำลองให้อัตโนมัติ (ข้อมูล MySQL เก็บใน volume `db_data` ไม่หายเมื่อปิด)
+- เครื่องอื่นในวง LAN เปิดผ่าน `http://<IP เครื่อง server>:8000/` (ตั้ง `DJANGO_ALLOWED_HOSTS` ให้มี IP นั้น หรือ `*`)
+- หยุด: `docker compose down` / ล้างข้อมูลทั้งหมด: `docker compose down -v`
