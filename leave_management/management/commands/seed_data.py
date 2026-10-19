@@ -4,9 +4,11 @@ from datetime import date
 
 import holidays
 from faker import Faker
+from django.contrib.auth import get_user_model
 from django.db import connection
 from django.core.management.base import BaseCommand
 
+from leave_management.accounts import create_users_for_employees, DEFAULT_PASSWORD
 from leave_management.models import Employee, LeaveType, LeaveRequest, Holiday
 
 POSITIONS = [
@@ -31,6 +33,7 @@ class Command(BaseCommand):
 
         #ล้างข้อมูลจำลองเดิม เพื่อให้รันซ้ำโดยไม่เกิน 50 คน
         LeaveRequest.objects.all().delete()
+        get_user_model().objects.filter(employee__isnull=False, is_superuser=False).delete()  # บัญชีของพนักงานจำลองเดิม
         Employee.objects.all().delete()
         Holiday.objects.all().delete()
 
@@ -64,6 +67,9 @@ class Command(BaseCommand):
         for d, name in sorted(holidays.Thailand(years=year, language='th').items()):
             Holiday.objects.create(date=d, name=name)
 
+        users = create_users_for_employees()  # สร้างบัญชีล็อกอิน emp<id> ให้พนักงานทุกคน
+
         self.stdout.write(self.style.SUCCESS(
+            f'สร้างบัญชีล็อกอิน {users} บัญชี (username = emp<id>, รหัสผ่าน {DEFAULT_PASSWORD})\n'
             f'สร้างพนักงาน {Employee.objects.count()} คน, '
             f'วันหยุด {Holiday.objects.count()} วัน(ปี {year}) เรียบร้อย'))
