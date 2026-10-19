@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.db.models import Count, Q
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -145,7 +146,31 @@ def employee_list(request):
     qs = visible_employees(request.user).select_related('manager').order_by('id')
     if q:
         qs = qs.filter(Q(name__icontains=q) | Q(position__icontains=q))
-    return render(request, 'leave_management/employee_list.html', {'employees': qs, 'q': q})
+    paginator = Paginator(qs, 10)  # หน้าละ 10 คน
+    page_obj = paginator.get_page(request.GET.get('page'))
+    page_numbers = [
+        n if n != paginator.ELLIPSIS else '…'
+        for n in paginator.get_elided_page_range(page_obj.number, on_each_side=2, on_ends=1)]
+    return render(request, 'leave_management/employee_list.html', {
+        'employees': page_obj, 'page_obj': page_obj, 'paginator': paginator,
+        'page_numbers': page_numbers, 'q': q})
+
+
+def employee_detail(request, pk):
+    """ประวัติการลาของพนักงานรายคน (เฉพาะแอดมิน)"""
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    emp = get_object_or_404(Employee.objects.select_related('manager'), pk=pk)
+    history = _with_days(emp.leave_requests.select_related('leave_type').order_by('-start_date', '-id'))
+    S = LeaveRequest.Status
+    return render(request, 'leave_management/employee_detail.html', {
+        'emp': emp,
+        'history': history,
+        'total': len(history),
+        'pending': sum(1 for r in history if r.status == S.PENDING),
+        'approved': sum(1 for r in history if r.status == S.APPROVED),
+        'approved_days': sum(r.days for r in history if r.status == S.APPROVED),
+    })
 
 
 def holiday_list(request):
