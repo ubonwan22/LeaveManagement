@@ -13,5 +13,6 @@ urlpatterns = [
     path('requests/new/', views.request_create, name='request_create'),
     path('requests/<int:pk>/decide/', views.request_decide, name='request_decide'),
     path('employees/', views.employee_list, name='employee_list'),
+    path('employees/<int:pk>/', views.employee_detail, name='employee_detail'),
     path('holidays/', views.holiday_list, name='holiday_list'),
 ]
