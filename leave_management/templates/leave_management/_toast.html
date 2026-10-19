@@ -1,0 +1,22 @@
+{% comment %}ป๊อปอัพแจ้งผล (แสดงจาก Django messages) หายเองใน 4 วินาที{% endcomment %}
+{% if messages %}
+<div id="toast-wrap" class="pointer-events-none fixed inset-x-0 top-4 z-50 flex flex-col items-center gap-2 px-4">
+  {% for m in messages %}
+  <div class="toast pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border px-4 py-3 text-sm shadow-lg transition duration-300
+      {% if m.tags == 'success' %}border-emerald-200 bg-emerald-50 text-emerald-800
+      {% elif m.tags == 'error' %}border-rose-200 bg-rose-50 text-rose-800
+      {% else %}border-amber-200 bg-amber-50 text-amber-800{% endif %}">
+    <span class="mt-0.5">{% if m.tags == 'success' %}✅{% elif m.tags == 'error' %}❌{% else %}⚠️{% endif %}</span>
+    <p class="flex-1">{{ m }}</p>
+    <button type="button" class="toast-close text-lg leading-none opacity-50 hover:opacity-100" aria-label="ปิด">&times;</button>
+  </div>
+  {% endfor %}
+</div>
+<script>
+  document.querySelectorAll('#toast-wrap .toast').forEach(function (el) {
+    function close() { el.classList.add('opacity-0', '-translate-y-2'); setTimeout(function () { el.remove(); }, 300); }
+    el.querySelector('.toast-close').addEventListener('click', close);
+    setTimeout(close, 4000);
+  });
+</script>
+{% endif %}
