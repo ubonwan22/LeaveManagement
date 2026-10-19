@@ -1,5 +1,6 @@
 from django import forms
 from .models import Employee, LeaveRequest
+from .permissions import get_employee
 from .utils import leave_days
 
 INPUT = (
@@ -24,12 +25,20 @@ class LeaveRequestForm(forms.ModelForm):
             'end_date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': INPUT}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
-        # กำหนดให้เลือกพนักงานได้เฉพาะพนักงานที่มี leave_balance > 0
-        self.fields['employee'].queryset = Employee.objects.order_by('name')
+        employees = Employee.objects.order_by('name')
         self.fields['employee'].empty_label = "--เลือกพนักงาน--"
         self.fields['leave_type'].empty_label = "--เลือกประเภทการลา--"
+        # ผู้ใช้ทั่วไป (ไม่ใช่แอดมิน) ยื่นใบลาได้เฉพาะของตัวเอง -> ล็อกช่องพนักงานเป็นตัวเอง
+        if user is not None and not user.is_superuser:
+            me = get_employee(user)
+            employees = employees.filter(pk=me.pk) if me else employees.none()
+            if me:
+                self.fields['employee'].empty_label = None
+                self.fields['employee'].disabled = True
+                self.initial['employee'] = me.pk
+        self.fields['employee'].queryset = employees
 
     def clean(self):
         data = super().clean()
