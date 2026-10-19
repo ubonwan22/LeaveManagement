@@ -1,0 +1,58 @@
+{% extends 'leave_management/base.html' %}
+{% load thai_date %}
+{% block title %}{{ emp.name }} | ประวัติการลา{% endblock %}
+{% block content %}
+<a href="{% url 'employee_list' %}" class="text-sm text-sky-700 hover:none">‹ กลับไปรายชื่อพนักงาน</a>
+
+<div class="mb-4 mt-2">
+  <h1 class="text-2xl font-bold">{{ emp.name }}</h1>
+  <p class="text-sm text-slate-500">
+    {{ emp.position|default:"—" }} · หัวหน้างาน: {{ emp.manager.name|default:"—" }} · วันลาคงเหลือ {{ emp.leave_balance }} วัน
+  </p>
+</div>
+
+<div class="mb-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+  <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+    <p class="text-sm text-slate-500">ใบลาทั้งหมด</p>
+    <p class="mt-1 text-3xl font-bold text-indigo-600">{{ total }}</p>
+  </div>
+  <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+    <p class="text-sm text-slate-500">รออนุมัติ</p>
+    <p class="mt-1 text-3xl font-bold text-amber-600">{{ pending }}</p>
+  </div>
+  <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+    <p class="text-sm text-slate-500">อนุมัติแล้ว</p>
+    <p class="mt-1 text-3xl font-bold text-emerald-600">{{ approved }}</p>
+  </div>
+  <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+    <p class="text-sm text-slate-500">รวมวันลาที่อนุมัติ</p>
+    <p class="mt-1 text-3xl font-bold text-sky-600">{{ approved_days }} <span class="text-base font-normal">วัน</span></p>
+  </div>
+</div>
+
+<h2 class="mb-2 font-semibold">ประวัติการลา</h2>
+<div class="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+  <table class="w-full text-left text-sm">
+    <thead class="bg-slate-50 text-slate-500">
+      <tr>
+        <th class="px-4 py-3 font-medium">ประเภท</th>
+        <th class="px-4 py-3 font-medium">ช่วงวันที่ลา</th>
+        <th class="px-4 py-3 font-medium">จำนวนวัน</th>
+        <th class="px-4 py-3 font-medium">สถานะ</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      {% for r in history %}
+      <tr>
+        <td class="px-4 py-3">{{ r.leave_type.name }}</td>
+        <td class="whitespace-nowrap px-4 py-3">{{ r.start_date|thai_date:"short" }} – {{ r.end_date|thai_date:"short" }}</td>
+        <td class="px-4 py-3">{{ r.days }}</td>
+        <td class="px-4 py-3">{% include 'leave_management/_badge.html' with status=r.status label=r.get_status_display %}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4" class="px-4 py-10 text-center text-slate-400">ยังไม่มีประวัติการลา</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
