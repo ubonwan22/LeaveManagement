@@ -2,11 +2,36 @@
 {% load thai_date %}
 {% block title %}ภาพรวมระบบลางานออนไลน์{% endblock %}
 {% block content %}
-<h1 class="mb-4 text-2xl font-bold">ภาพรวม</h1>
+<h1 class="text-2xl font-bold">ภาพรวม</h1>
+<p class="mb-4 text-sm text-slate-500">สิทธิ์ของคุณ: {{ role }}{% if role == 'หัวหน้า' %} · เห็นข้อมูลเฉพาะทีมของตัวเอง{% endif %}</p>
+
+{% if pending is not None %}
+<section class="mb-6 rounded-xl bg-white p-4 shadow-sm ring-1 ring-amber-200">
+  <h2 class="mb-3 font-semibold">ใบลาที่รอคุณอนุมัติ <span class="text-sm font-normal text-slate-400">({{ pending|length }} ใบ)</span></h2>
+  <ul class="divide-y divide-slate-100">
+    {% for r in pending %}
+    <li class="flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
+      <div>
+        <p class="font-medium">{{ r.employee.name }} <span class="font-normal text-slate-400">· วันลาคงเหลือ {{ r.employee.leave_balance }} วัน</span></p>
+        <p class="text-slate-500">{{ r.leave_type.name }} · {{ r.start_date|thai_date:"short" }} – {{ r.end_date|thai_date:"short" }} ({{ r.days }} วัน)</p>
+      </div>
+      <form method="post" action="{% url 'request_decide' r.pk %}" class="flex gap-2">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{% url 'dashboard' %}">
+        <button name="action" value="approve" class="rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-emerald-700">อนุมัติ</button>
+        <button name="action" value="reject" onclick="return confirm('ไม่อนุมัติใบลานี้?')" class="rounded-lg bg-rose-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-rose-700">ไม่อนุมัติ</button>
+      </form>
+    </li>
+    {% empty %}
+    <li class="py-6 text-center text-slate-400">ไม่มีใบลาที่รออนุมัติ</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
 
 <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
   <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-    <p class="text-sm text-slate-500">พนักงานทั้งหมด</p>
+    <p class="text-sm text-slate-500">{% if user.is_superuser %}พนักงานทั้งหมด{% else %}พนักงานในทีม{% endif %}</p>
     <p class="mt-1 text-3xl font-bold text-indigo-600">{{ employee_count }}</p>
   </div>
   <a href="{% url 'request_list' %}?status=PENDING" class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 hover:ring-amber-300">

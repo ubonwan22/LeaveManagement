@@ -37,12 +37,13 @@
         <td class="px-4 py-3">{{ r.days }}</td>
         <td class="px-4 py-3">{% include 'leave_management/_badge.html' with status=r.status label=r.get_status_display %}</td>
         <td class="px-4 py-3">
-          {% if r.status == 'PENDING' %}
+          {% if r.can_decide %}
           <form method="post" action="{% url 'request_decide' r.pk %}" class="flex gap-2">
             {% csrf_token %}
             <button name="action" value="approve" class="rounded-lg bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-700">อนุมัติ</button>
             <button name="action" value="reject" onclick="return confirm('ไม่อนุมัติใบลานี้?')" class="rounded-lg bg-rose-600 px-3 py-1 text-xs font-medium text-white hover:bg-rose-700">ไม่อนุมัติ</button>
           </form>
+          {% elif r.status == 'PENDING' %}<span class="text-slate-400">รอหัวหน้าพิจารณา</span>
           {% else %}<span class="text-slate-300">—</span>{% endif %}
         </td>
       </tr>
