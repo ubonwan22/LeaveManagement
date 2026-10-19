@@ -54,11 +54,11 @@ class AppLoginView(auth_views.LoginView):
     """ล็อกอินสำเร็จแล้วแสดงป๊อปอัพต้อนรับ"""
 
     def form_valid(self, form):
-        response = super().form_valid(form)
+        response = super().form_valid(form) #ให้ Django ตรวจรหัสผ่านและสร้าง session ให้เรียบร้อยก่อน
         user = form.get_user()
-        emp = get_employee(user)
+        emp = get_employee(user) #หาพนักงานที่ผูกกับ user นี้
         name = emp.name if emp else user.get_full_name() or user.username
-        messages.success(self.request, f'เข้าสู่ระบบสำเร็จ ยินดีต้อนรับ {name}')
+        messages.success(self.request, f'เข้าสู่ระบบสำเร็จ ยินดีต้อนรับ {name}') #ขแสดงข้อความหน้า Dashboard โดยจะแสดงเป็น Popup
         return response
 
 

@@ -13,7 +13,7 @@ def get_employee(user):
     """คืน Employee ที่ผูกกับ user (ถ้าไม่มีคืน None)"""
     if not user.is_authenticated:
         return None
-    emp = getattr(user, 'employee', None)
+    emp = getattr(user, 'employee', None) #ดึง employee ที่ผูกกับ user นี้ (ผ่าน OneToOneField)
     if emp is None:
         emp = link_user_to_employee(user)  # ยังไม่ได้ผูก: ลองผูกให้อัตโนมัติจากชื่อ emp<id>
     return emp
@@ -40,13 +40,13 @@ def visible_employees(user):
     """พนักงานที่ user คนนี้มองเห็น"""
     qs = Employee.objects.all()
     if user.is_superuser:
-        return qs
+        return qs #เห็นทุกคน
     me = get_employee(user)
     if me is None:
-        return qs.none()
+        return qs.none() #ไม่มีพนักงานที่ผูกกับบัญชีนี้
     if me.is_manager:
         return qs.filter(Q(pk=me.pk) | Q(manager=me))  # ตัวเอง + ลูกน้องในทีม
-    return qs.filter(pk=me.pk)
+    return qs.filter(pk=me.pk) #เห็นเฉพาะตัวเอง
 
 
 def visible_requests(user):
