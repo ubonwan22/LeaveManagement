@@ -42,13 +42,9 @@
   </header>
   {% endwith %}
 
+  {% include 'leave_management/_toast.html' %}
+
   <main class="mx-auto max-w-6xl px-4 py-6">
-    {% for m in messages %}
-      <div class="mb-4 rounded-lg border px-4 py-3 text-sm
-        {% if m.tags == 'success' %}border-emerald-200 bg-emerald-50 text-emerald-800
-        {% elif m.tags == 'error' %}border-rose-200 bg-rose-50 text-rose-800
-        {% else %}border-amber-200 bg-amber-50 text-amber-800{% endif %}">{{ m }}</div>
-    {% endfor %}
     {% block content %}{% endblock %}
   </main>
 </body>
