@@ -3,10 +3,10 @@ from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
-    path('login/', auth_views.LoginView.as_view(
+    path('login/', views.AppLoginView.as_view(
         template_name='leave_management/login.html',
         redirect_authenticated_user=True), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),  # ต้องเรียกด้วย POST
+    path('logout/', views.AppLogoutView.as_view(), name='logout'),  # ต้องเรียกด้วย POST
     path('', views.dashboard, name='dashboard'),
     path('hello/', views.hello, name='hello'), 
     path('requests/', views.request_list, name='request_list'),
