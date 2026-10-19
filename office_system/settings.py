@@ -54,6 +54,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.LoginRequiredMiddleware',  # ทุกหน้าต้องล็อกอินก่อน ไม่งั้นเด้งไปหน้า login
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -131,6 +132,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+# Authentication
+LOGIN_URL = 'login'              # หน้าล็อกอิน (ถ้ายังไม่ล็อกอินจะถูกส่งมาที่นี่)
+LOGIN_REDIRECT_URL = 'dashboard' # ล็อกอินสำเร็จ -> ไปหน้าภาพรวม
+LOGOUT_REDIRECT_URL = 'login'    # ล็อกเอาต์แล้ว -> กลับหน้าล็อกอิน
 
 
 # Email
