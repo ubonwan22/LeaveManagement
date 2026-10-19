@@ -29,6 +29,13 @@
         <a href="{% url 'employee_list' %}" class="rounded-lg px-3 py-2 {% if page == 'employee_list' %}bg-sky-100 text-sky-700{% else %}text-slate-600 hover:bg-slate-100{% endif %}">พนักงาน</a>
         <a href="{% url 'holiday_list' %}" class="rounded-lg px-3 py-2 {% if page == 'holiday_list' %}bg-sky-100 text-sky-700{% else %}text-slate-600 hover:bg-slate-100{% endif %}">วันหยุด</a>
       </nav>
+      {% if user.is_authenticated %}
+      <form method="post" action="{% url 'logout' %}" class="flex items-center gap-3 text-sm">
+        {% csrf_token %}
+        <span class="text-slate-500">👤 {{ user.get_full_name|default:user.username }}</span>
+        <button type="submit" class="rounded-lg border border-slate-200 px-3 py-2 font-medium text-slate-600 hover:bg-slate-100">ออกจากระบบ</button>
+      </form>
+      {% endif %}
     </div>
   </header>
   {% endwith %}
