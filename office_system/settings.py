@@ -26,13 +26,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 #กุญแจสำหรับเข้ารหัส session/cookie
-SECRET_KEY = 'django-insecure-vmuzu&+!2z#$hj@f&qpu(%-$xx)0=k&pxcak_3tf85o!@0q20*'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-vmuzu&+!2z#$hj@f&qpu(%-$xx)0=k&pxcak_3tf85o!@0q20*')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #โหมดพัฒนา แสดงหน้า error ละเอียด (ห้ามเปิดตอนใช้งานจริง)
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', '1') == '1'
 
-ALLOWED_HOSTS = []
+# เครื่องอื่นในวง LAN จะเปิดเว็บได้ ต้องอยู่ใน list นี้ (ตั้งใน .env เช่น DJANGO_ALLOWED_HOSTS=localhost,192.168.1.50)
+# ใส่ * เพื่ออนุญาตทุก host (ใช้ตอนเดโมในวง LAN เท่านั้น)
+ALLOWED_HOSTS = [h.strip() for h in os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if h.strip()]
 
 
 # Application definition
@@ -73,6 +75,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'leave_management.context_processors.permissions',  # ตัวแปร is_approver ใช้ซ่อนเมนู
             ],
         },
     },
