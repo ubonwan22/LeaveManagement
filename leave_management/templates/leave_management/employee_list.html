@@ -2,7 +2,7 @@
 {% block title %}พนักงาน | ระบบลางานออนไลน์{% endblock %}
 {% block content %}
 <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-  <h1 class="text-2xl font-bold">พนักงาน <span class="text-base font-normal text-slate-400">({{ employees|length }} คน)</span></h1>
+  <h1 class="text-2xl font-bold">พนักงาน <span class="text-base font-normal text-slate-400">({{ paginator.count }} คน)</span></h1>
   <form method="get" class="flex gap-2">
     <input type="search" name="q" value="{{ q }}" placeholder="ค้นหาชื่อหรือตำแหน่ง"
            class="w-64 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200">
@@ -25,7 +25,9 @@
       {% for e in employees %}
       <tr>
         <td class="px-4 py-3 text-slate-400">{{ e.id }}</td>
-        <td class="px-4 py-3 font-medium">{{ e.name }}</td>
+        <td class="px-4 py-3 font-medium">
+          {% if user.is_superuser %}<a href="{% url 'employee_detail' e.pk %}" class="text-sky-700 hover:none">{{ e.name }}</a>{% else %}{{ e.name }}{% endif %}
+        </td>
         <td class="px-4 py-3">{{ e.position|default:"—" }}</td>
         <td class="px-4 py-3">
           <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold {% if e.leave_balance <= 2 %}bg-rose-100 text-rose-700{% else %}bg-indigo-100 text-indigo-700{% endif %}">{{ e.leave_balance }} วัน</span>
@@ -38,4 +40,26 @@
     </tbody>
   </table>
 </div>
+{% if paginator.num_pages > 1 %}
+<nav class="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm">
+  <p class="text-slate-500">แสดง {{ page_obj.start_index }}–{{ page_obj.end_index }} จาก {{ paginator.count }} คน</p>
+  <div class="flex flex-wrap items-center gap-1">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}" class="rounded-lg bg-white px-3 py-1.5 text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100">‹ ก่อนหน้า</a>
+    {% endif %}
+    {% for n in page_numbers %}
+      {% if n == page_obj.number %}
+        <span class="rounded-lg bg-sky-600 px-3 py-1.5 font-medium text-white">{{ n }}</span>
+      {% elif n == '…' %}
+        <span class="px-2 text-slate-400">…</span>
+      {% else %}
+        <a href="?page={{ n }}{% if q %}&q={{ q|urlencode }}{% endif %}" class="rounded-lg bg-white px-3 py-1.5 text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100">{{ n }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}" class="rounded-lg bg-white px-3 py-1.5 text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100">ถัดไป ›</a>
+    {% endif %}
+  </div>
+</nav>
+{% endif %}
 {% endblock %}
